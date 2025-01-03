@@ -5,6 +5,7 @@ local Title = Instance.new("TextLabel")
 local CloseButton = Instance.new("TextButton")
 local EspButton = Instance.new("TextButton")
 local MainFrame = Instance.new("Frame")
+local VersionLabel = Instance.new("TextLabel") -- Version Label
 local Dragging, DragStart, StartPos
 
 -- Eigenschaften für das GUI setzen
@@ -49,6 +50,15 @@ MainFrame.Parent = Frame
 MainFrame.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
 MainFrame.Size = UDim2.new(0, 300, 0, 150)
 MainFrame.Position = UDim2.new(0, 100, 0, 50)
+
+-- Version Label (klein in der Ecke)
+VersionLabel.Parent = Frame
+VersionLabel.Text = "V 1.1.2" -- Versionnummer
+VersionLabel.TextColor3 = Color3.new(1, 1, 1) -- Weiß
+VersionLabel.Font = Enum.Font.SourceSans
+VersionLabel.TextSize = 12
+VersionLabel.Position = UDim2.new(1, -60, 1, -15) -- Unten rechts
+VersionLabel.Size = UDim2.new(0, 50, 0, 20)
 
 -- ESP Status (aktiviert oder deaktiviert)
 local espActive = false
@@ -173,4 +183,3 @@ game:GetService("UserInputService").InputBegan:Connect(function(input, gameProce
 end)
 
 -- Hinweis: Für das Skript muss Allow HTTP Requests in den Game Settings aktiviert sein.
-
