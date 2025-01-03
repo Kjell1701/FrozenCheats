@@ -5,7 +5,6 @@ local Title = Instance.new("TextLabel")
 local CloseButton = Instance.new("TextButton")
 local EspButton = Instance.new("TextButton")
 local MainFrame = Instance.new("Frame")
-local VersionLabel = Instance.new("TextLabel") -- Version Label
 local Dragging, DragStart, StartPos
 
 -- Eigenschaften für das GUI setzen
@@ -51,65 +50,57 @@ MainFrame.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
 MainFrame.Size = UDim2.new(0, 300, 0, 150)
 MainFrame.Position = UDim2.new(0, 100, 0, 50)
 
--- Version Label (klein in der Ecke)
-VersionLabel.Parent = Frame
-VersionLabel.Text = "V 1.1.2" -- Versionnummer
-VersionLabel.TextColor3 = Color3.new(1, 1, 1) -- Weiß
-VersionLabel.Font = Enum.Font.SourceSans
-VersionLabel.TextSize = 12
-VersionLabel.Position = UDim2.new(1, -60, 1, -15) -- Unten rechts
-VersionLabel.Size = UDim2.new(0, 50, 0, 20)
-
 -- ESP Status (aktiviert oder deaktiviert)
 local espActive = false
-local playersESP = {} -- Table für Player ESP
+local highlights = {} -- Table um Highlights zu speichern
 
 -- Funktion zum Erstellen von ESP
-local function createESP(character)
-    if character and character:FindFirstChild("Head") then
-        local head = character.Head
-        local espPart = Instance.new("BillboardGui")
-        espPart.Parent = head
-        espPart.Adornee = head
-        espPart.Size = UDim2.new(0, 100, 0, 100)
-        espPart.StudsOffset = Vector3.new(0, 1.5, 0)
-        
-        local frame = Instance.new("Frame")
-        frame.Parent = espPart
-        frame.Size = UDim2.new(1, 0, 1, 0)
-        frame.BackgroundColor3 = Color3.new(1, 0, 0) -- Rot
-        table.insert(playersESP, espPart) -- Füge dem ESP-Array hinzu
-    end
+local function createESP(object)
+    local highlight = Instance.new("Highlight")
+    highlight.Parent = object
+    highlight.FillColor = Color3.new(1, 0, 0) -- Rot
+    highlight.FillTransparency = 0.5
+    table.insert(highlights, highlight) -- Highlight speichern
 end
 
--- Funktion zum Entfernen von ESP
-local function removeESP(character)
-    if character and character:FindFirstChild("Head") then
-        for _, espPart in pairs(playersESP) do
-            if espPart.Parent then
-                espPart:Destroy()
+-- Funktion um das ESP für alle Teile eines Fahrzeugs zu erstellen
+local function createESPForVehicle(vehicle)
+    if vehicle and vehicle:IsA("Model") then
+        for _, part in pairs(vehicle:GetDescendants()) do
+            if part:IsA("BasePart") then
+                createESP(part)
             end
         end
-        playersESP = {} -- Reset des ESP-Arrays
     end
 end
 
--- Funktion um ESP für alle Spieler zu aktivieren
+-- Funktion um ESP für alle Spieler und Fahrzeuge zu aktivieren
 local function activateESP()
     for _, player in pairs(game.Players:GetPlayers()) do
         if player ~= game.Players.LocalPlayer and player.Character then
-            createESP(player.Character) -- Erstelle ESP für den Spieler
+            createESP(player.Character)
+        end
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            -- Überprüfen, ob der Spieler in einem Fahrzeug sitzt
+            local vehicle = player.Character:FindFirstChild("VehicleSeat") and player.Character.Parent
+            if vehicle then
+                createESPForVehicle(vehicle) -- ESP für das Fahrzeug aktivieren
+            else
+                -- Spieler sehen, auch wenn sie zu Fuß sind
+                createESP(player.Character)
+            end
         end
     end
 end
 
 -- Funktion zum Deaktivieren von ESP
 local function deactivateESP()
-    for _, player in pairs(game.Players:GetPlayers()) do
-        if player.Character then
-            removeESP(player.Character) -- Entferne ESP für den Spieler
+    for _, highlight in pairs(highlights) do
+        if highlight.Parent then
+            highlight:Destroy() -- Entferne jedes Highlight
         end
     end
+    highlights = {} -- Reset der Highlights
 end
 
 -- ESP-Button-Funktion
@@ -176,10 +167,11 @@ game:GetService("UserInputService").InputBegan:Connect(function(input, gameProce
         else
             activateESP() -- ESP aktivieren
             EspButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Grün
-            EspButton.Text = "Deaktivieren" -- Text ändern zu "Deaktivieren"
+            EspButton.Text = "RP" -- Text ändern zu "Deaktivieren"
             espActive = true
         end
     end
 end)
 
 -- Hinweis: Für das Skript muss Allow HTTP Requests in den Game Settings aktiviert sein.
+
