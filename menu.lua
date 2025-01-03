@@ -107,7 +107,7 @@ end
 -- Funktion zum Überprüfen, ob ESP aktiviert ist, und es regelmäßig neu laden
 local function autoUpdateESP()
     if espActive then
-        activateESP() -- Wenn ESP aktiv ist, das ESP alle 10 Sekunden neu laden
+        activateESP() -- Wenn ESP aktiv ist, das ESP alle 5 Sekunden neu laden
     end
 end
 
@@ -127,13 +127,13 @@ EspButton.MouseButton1Click:Connect(function()
     else
         activateESP() -- ESP aktivieren
         EspButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Grün
-        EspButton.Text = "schniepel" -- Text ändern zu "Deaktivieren"
+        EspButton.Text = "Deaktivieren" -- Text ändern zu "Deaktivieren"
         espActive = true
 
-        -- Starte den Timer, um das ESP alle 10 Sekunden zu aktualisieren
+        -- Starte den Timer, um das ESP alle 5 Sekunden zu aktualisieren
         espUpdateTimer = game:GetService("RunService").Heartbeat:Connect(function()
             if espActive then
-                autoUpdateESP() -- ESP regelmäßig alle 10 Sekunden aktualisieren
+                autoUpdateESP() -- ESP regelmäßig alle 5 Sekunden aktualisieren
             end
         end)
     end
@@ -177,4 +177,3 @@ game.Players.PlayerAdded:Connect(function(player)
 end)
 
 -- Hinweis: Für das Skript muss Allow HTTP Requests in den Game Settings aktiviert sein.
-
