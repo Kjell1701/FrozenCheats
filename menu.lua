@@ -113,7 +113,7 @@ EspButton.MouseButton1Click:Connect(function()
     else
         activateESP() -- ESP aktivieren
         EspButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Grün
-        EspButton.Text = "Deaktivieren" -- Text ändern zu "Deaktivieren"
+        EspButton.Text = "penis" -- Text ändern zu "Deaktivieren"
         espActive = true
     end
 end)
