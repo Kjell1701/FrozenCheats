@@ -42,6 +42,7 @@ EspButton.Font = Enum.Font.SourceSansBold
 EspButton.TextSize = 18
 EspButton.Size = UDim2.new(0, 100, 0, 50)
 EspButton.Position = UDim2.new(0, 10, 0, 50)
+EspButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Grau
 
 -- Hauptframe für Inhalte (ESP, etc.)
 MainFrame.Parent = Frame
@@ -78,9 +79,13 @@ local function activateESP()
             createESP(player.Character)
         end
         if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            -- Überprüfen, ob der Spieler in einem Fahrzeug sitzt
             local vehicle = player.Character:FindFirstChild("VehicleSeat") and player.Character.Parent
             if vehicle then
-                createESPInVehicle(vehicle)
+                createESPInVehicle(vehicle) -- ESP auch im Fahrzeug aktivieren
+            else
+                -- Spieler sehen, auch wenn sie zu Fuß sind
+                createESP(player.Character)
             end
         end
     end
@@ -107,11 +112,13 @@ end
 EspButton.MouseButton1Click:Connect(function()
     if espActive then
         deactivateESP()
-        EspButton.BackgroundColor3 = Color3.new(1, 1, 1) -- Normal
+        EspButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Grau
+        EspButton.Text = "ESP" -- Text zurück zu "ESP"
         espActive = false
     else
         activateESP()
         EspButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Grün
+        EspButton.Text = "Deaktivieren" -- Text ändern zu "Deaktivieren"
         espActive = true
     end
 end)
