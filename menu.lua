@@ -63,8 +63,8 @@ local function createESP(object)
     table.insert(highlights, highlight) -- Highlight speichern
 end
 
--- Funktion um das ESP auch im Auto zu aktivieren
-local function createESPInVehicle(vehicle)
+-- Funktion um das ESP für alle Teile eines Fahrzeugs zu erstellen
+local function createESPForVehicle(vehicle)
     if vehicle and vehicle:IsA("Model") then
         for _, part in pairs(vehicle:GetDescendants()) do
             if part:IsA("BasePart") then
@@ -84,7 +84,7 @@ local function activateESP()
             -- Überprüfen, ob der Spieler in einem Fahrzeug sitzt
             local vehicle = player.Character:FindFirstChild("VehicleSeat") and player.Character.Parent
             if vehicle then
-                createESPInVehicle(vehicle) -- ESP auch im Fahrzeug aktivieren
+                createESPForVehicle(vehicle) -- ESP für das Fahrzeug aktivieren
             else
                 -- Spieler sehen, auch wenn sie zu Fuß sind
                 createESP(player.Character)
@@ -113,7 +113,7 @@ EspButton.MouseButton1Click:Connect(function()
     else
         activateESP() -- ESP aktivieren
         EspButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Grün
-        EspButton.Text = "ESP" -- Text ändern zu "Deaktivieren"
+        EspButton.Text = "Deaktivieren" -- Text ändern zu "Deaktivieren"
         espActive = true
     end
 end)
@@ -146,6 +146,13 @@ Frame.InputEnded:Connect(function(input)
     end
 end)
 
--- Hinweis: Für das Skript muss Allow HTTP Requests in den Game Settings aktiviert sein.
+-- Event-Listener, um ESP für neue Spieler zu aktivieren
+game.Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function(character)
+        if espActive then
+            createESP(character) -- Aktivieren von ESP für den neuen Spieler
+        end
+    end)
+end)
 
 -- Hinweis: Für das Skript muss Allow HTTP Requests in den Game Settings aktiviert sein.
