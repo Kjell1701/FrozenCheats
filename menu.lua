@@ -1,46 +1,38 @@
--- GUI Library laden
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/dein-repo/gui-library/main/library.lua"))()
-local Window = Library:CreateWindow("Mod Menü") -- Titel des Mod-Menüs
+-- Mod-Menü GUI erstellen
+local ScreenGui = Instance.new("ScreenGui")
+local Frame = Instance.new("Frame")
+local EspButton = Instance.new("TextButton")
 
--- ESP Funktion
+-- Eigenschaften für das GUI setzen
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+Frame.Parent = ScreenGui
+Frame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+Frame.Size = UDim2.new(0, 300, 0, 200)
+Frame.Position = UDim2.new(0.5, -150, 0.5, -100)
+
+EspButton.Parent = Frame
+EspButton.Size = UDim2.new(0, 200, 0, 50)
+EspButton.Position = UDim2.new(0.5, -100, 0.5, -25)
+EspButton.Text = "ESP Aktivieren"
+
+-- Funktion zum Erstellen von ESP
 local function createESP(object)
     local highlight = Instance.new("Highlight")
     highlight.Parent = object
-    highlight.FillColor = Color3.new(1, 0, 0) -- Rote Markierung
+    highlight.FillColor = Color3.new(1, 0, 0) -- Rot
     highlight.FillTransparency = 0.5
 end
 
--- Button für ESP
-Window:AddButton("ESP Aktivieren", function()
+-- Button-Funktion für ESP
+EspButton.MouseButton1Click:Connect(function()
     for _, player in pairs(game.Players:GetPlayers()) do
         if player ~= game.Players.LocalPlayer and player.Character then
             createESP(player.Character)
         end
     end
+    print("ESP aktiviert!")
 end)
 
--- Speed Hack
-Window:AddButton("Speed Hack", function()
-    local player = game.Players.LocalPlayer
-    player.Character.Humanoid.WalkSpeed = 100 -- Geschwindigkeit auf 100 erhöhen
-end)
-
--- Fly Hack (Beispiel)
-Window:AddButton("Fly Hack", function()
-    local player = game.Players.LocalPlayer
-    local char = player.Character or player.CharacterAdded:Wait()
-    local root = char:WaitForChild("HumanoidRootPart")
-    
-    local flying = true
-    game:GetService("UserInputService").InputBegan:Connect(function(input)
-        if input.KeyCode == Enum.KeyCode.X then -- Beenden mit der Taste X
-            flying = false
-        end
-    end)
-    
-    while flying do
-        root.Velocity = Vector3.new(0, 50, 0) -- Schwebt nach oben
-        wait(0.1)
-    end
-end)
+-- Hinweis: Für das Skript muss Allow HTTP Requests in den Game Settings aktiviert sein.
 
