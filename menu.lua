@@ -52,73 +52,35 @@ MainFrame.Position = UDim2.new(0, 100, 0, 50)
 
 -- ESP Status (aktiviert oder deaktiviert)
 local espActive = false
-local skeletons = {} -- Table für Skeleton ESP Linien
+local playersESP = {} -- Table für Player ESP
 
--- Liste der Gelenke im Charakter
-local joints = {
-    "Head",
-    "Torso",
-    "LeftLeg",
-    "RightLeg",
-    "LeftArm",
-    "RightArm",
-    "HumanoidRootPart"
-}
-
--- Funktion zum Erstellen von Skeleton ESP
-local function createSkeletonESP(character)
-    -- Entfernen bestehender Skeletons
-    if skeletons[character] then
-        for _, part in pairs(skeletons[character]) do
-            if part.Parent then
-                part:Destroy()
-            end
-        end
-    end
-    
-    skeletons[character] = {}
-
-    local humanoid = character:FindFirstChild("Humanoid")
-    if humanoid then
-        local humanoidRoot = character:FindFirstChild("HumanoidRootPart")
-        local parts = {}
+-- Funktion zum Erstellen von ESP
+local function createESP(character)
+    if character and character:FindFirstChild("Head") then
+        local head = character.Head
+        local espPart = Instance.new("BillboardGui")
+        espPart.Parent = head
+        espPart.Adornee = head
+        espPart.Size = UDim2.new(0, 100, 0, 100)
+        espPart.StudsOffset = Vector3.new(0, 1.5, 0)
         
-        -- Alle relevanten Körperteile finden
-        for _, joint in pairs(joints) do
-            local part = character:FindFirstChild(joint)
-            if part then
-                table.insert(parts, part)
-            end
-        end
-        
-        -- Linien zwischen den Gelenken erstellen
-        for i = 1, #parts - 1 do
-            local part1 = parts[i]
-            local part2 = parts[i + 1]
-            
-            local line = Instance.new("LineHandleAdornment")
-            line.Parent = workspace
-            line.Color3 = Color3.new(1, 0, 0) -- Rot
-            line.Transparency = 0.5
-            line.Adornee = part1
-            line.CFrame = CFrame.new(part1.Position, part2.Position)
-            line.Length = (part2.Position - part1.Position).Magnitude
-            line.Parent = workspace
-            
-            table.insert(skeletons[character], line) -- Linie zum Skeleton hinzufügen
-        end
+        local frame = Instance.new("Frame")
+        frame.Parent = espPart
+        frame.Size = UDim2.new(1, 0, 1, 0)
+        frame.BackgroundColor3 = Color3.new(1, 0, 0) -- Rot
+        table.insert(playersESP, espPart) -- Füge dem ESP-Array hinzu
     end
 end
 
--- Funktion zum Entfernen von Skeleton ESP
-local function removeSkeletonESP(character)
-    if skeletons[character] then
-        for _, part in pairs(skeletons[character]) do
-            if part.Parent then
-                part:Destroy() -- Entferne jede Linie
+-- Funktion zum Entfernen von ESP
+local function removeESP(character)
+    if character and character:FindFirstChild("Head") then
+        for _, espPart in pairs(playersESP) do
+            if espPart.Parent then
+                espPart:Destroy()
             end
         end
-        skeletons[character] = {} -- Reset der Skeleton-Daten
+        playersESP = {} -- Reset des ESP-Arrays
     end
 end
 
@@ -126,7 +88,7 @@ end
 local function activateESP()
     for _, player in pairs(game.Players:GetPlayers()) do
         if player ~= game.Players.LocalPlayer and player.Character then
-            createSkeletonESP(player.Character) -- Erstelle Skeleton ESP für den Spieler
+            createESP(player.Character) -- Erstelle ESP für den Spieler
         end
     end
 end
@@ -135,7 +97,7 @@ end
 local function deactivateESP()
     for _, player in pairs(game.Players:GetPlayers()) do
         if player.Character then
-            removeSkeletonESP(player.Character) -- Entferne Skeleton ESP
+            removeESP(player.Character) -- Entferne ESP für den Spieler
         end
     end
 end
@@ -183,11 +145,11 @@ Frame.InputEnded:Connect(function(input)
     end
 end)
 
--- Event-Listener, um Skeleton ESP für neue Spieler zu aktivieren
+-- Event-Listener, um ESP für neue Spieler zu aktivieren
 game.Players.PlayerAdded:Connect(function(player)
     player.CharacterAdded:Connect(function(character)
         if espActive then
-            createSkeletonESP(character) -- Aktivieren von Skeleton ESP für den neuen Spieler
+            createESP(character) -- Aktivieren von ESP für den neuen Spieler
         end
     end)
 end)
@@ -204,12 +166,11 @@ game:GetService("UserInputService").InputBegan:Connect(function(input, gameProce
         else
             activateESP() -- ESP aktivieren
             EspButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Grün
-            EspButton.Text = "erpe" -- Text ändern zu "Deaktivieren"
+            EspButton.Text = "Deaktivieren" -- Text ändern zu "Deaktivieren"
             espActive = true
         end
     end
 end)
 
 -- Hinweis: Für das Skript muss Allow HTTP Requests in den Game Settings aktiviert sein.
-
 
