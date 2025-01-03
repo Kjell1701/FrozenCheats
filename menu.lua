@@ -52,6 +52,7 @@ MainFrame.Position = UDim2.new(0, 100, 0, 50)
 
 -- ESP Status (aktiviert oder deaktiviert)
 local espActive = false
+local highlights = {} -- Table um Highlights zu speichern
 
 -- Funktion zum Erstellen von ESP
 local function createESP(object)
@@ -59,6 +60,7 @@ local function createESP(object)
     highlight.Parent = object
     highlight.FillColor = Color3.new(1, 0, 0) -- Rot
     highlight.FillTransparency = 0.5
+    table.insert(highlights, highlight) -- Highlight speichern
 end
 
 -- Funktion um das ESP auch im Auto zu aktivieren
@@ -93,19 +95,12 @@ end
 
 -- Funktion zum Deaktivieren von ESP
 local function deactivateESP()
-    for _, player in pairs(game.Players:GetPlayers()) do
-        if player.Character then
-            -- Entferne alle Highlights für den Spieler
-            for _, part in pairs(player.Character:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    local highlight = part:FindFirstChild("Highlight")
-                    if highlight then
-                        highlight:Destroy()
-                    end
-                end
-            end
+    for _, highlight in pairs(highlights) do
+        if highlight.Parent then
+            highlight:Destroy() -- Entferne jedes Highlight
         end
     end
+    highlights = {} -- Reset der Highlights
 end
 
 -- ESP-Button-Funktion
@@ -118,7 +113,7 @@ EspButton.MouseButton1Click:Connect(function()
     else
         activateESP() -- ESP aktivieren
         EspButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Grün
-        EspButton.Text = "Deaktivieren" -- Text ändern zu "Deaktivieren"
+        EspButton.Text = "ESP" -- Text ändern zu "Deaktivieren"
         espActive = true
     end
 end)
@@ -150,5 +145,7 @@ Frame.InputEnded:Connect(function(input)
         Dragging = false
     end
 end)
+
+-- Hinweis: Für das Skript muss Allow HTTP Requests in den Game Settings aktiviert sein.
 
 -- Hinweis: Für das Skript muss Allow HTTP Requests in den Game Settings aktiviert sein.
