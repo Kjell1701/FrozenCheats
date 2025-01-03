@@ -176,4 +176,36 @@ game.Players.PlayerAdded:Connect(function(player)
     end)
 end)
 
+-- Tastenkürzel "O" zum Aktivieren/Deaktivieren von ESP
+game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.O then
+        if espActive then
+            deactivateESP() -- ESP deaktivieren
+            EspButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Grau
+            EspButton.Text = "ESP" -- Text zurück zu "ESP"
+            espActive = false
+
+            -- Stoppe den Timer, wenn ESP deaktiviert wird
+            if espUpdateTimer then
+                espUpdateTimer:Disconnect()
+                espUpdateTimer = nil
+            end
+        else
+            activateESP() -- ESP aktivieren
+            EspButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Grün
+            EspButton.Text = "Deaktivieren" -- Text ändern zu "Deaktivieren"
+            espActive = true
+
+            -- Starte den Timer, um das ESP alle 5 Sekunden zu aktualisieren
+            espUpdateTimer = game:GetService("RunService").Heartbeat:Connect(function()
+                if espActive then
+                    autoUpdateESP() -- ESP regelmäßig alle 5 Sekunden aktualisieren
+                end
+            end)
+        end
+    end
+end)
+
 -- Hinweis: Für das Skript muss Allow HTTP Requests in den Game Settings aktiviert sein.
+
