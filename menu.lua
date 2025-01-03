@@ -204,7 +204,7 @@ game:GetService("UserInputService").InputBegan:Connect(function(input, gameProce
         else
             activateESP() -- ESP aktivieren
             EspButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Grün
-            EspButton.Text = "Deaktivieren" -- Text ändern zu "Deaktivieren"
+            EspButton.Text = "erpe" -- Text ändern zu "Deaktivieren"
             espActive = true
         end
     end
