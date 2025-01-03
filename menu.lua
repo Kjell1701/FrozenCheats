@@ -95,7 +95,7 @@ end
 local function deactivateESP()
     for _, player in pairs(game.Players:GetPlayers()) do
         if player.Character then
-            -- Entferne die Highlights
+            -- Entferne alle Highlights für den Spieler
             for _, part in pairs(player.Character:GetDescendants()) do
                 if part:IsA("BasePart") then
                     local highlight = part:FindFirstChild("Highlight")
@@ -111,12 +111,12 @@ end
 -- ESP-Button-Funktion
 EspButton.MouseButton1Click:Connect(function()
     if espActive then
-        deactivateESP()
+        deactivateESP() -- ESP deaktivieren
         EspButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Grau
         EspButton.Text = "ESP" -- Text zurück zu "ESP"
         espActive = false
     else
-        activateESP()
+        activateESP() -- ESP aktivieren
         EspButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Grün
         EspButton.Text = "Deaktivieren" -- Text ändern zu "Deaktivieren"
         espActive = true
@@ -152,4 +152,3 @@ Frame.InputEnded:Connect(function(input)
 end)
 
 -- Hinweis: Für das Skript muss Allow HTTP Requests in den Game Settings aktiviert sein.
-
