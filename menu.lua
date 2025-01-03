@@ -53,6 +53,7 @@ MainFrame.Position = UDim2.new(0, 100, 0, 50)
 -- ESP Status (aktiviert oder deaktiviert)
 local espActive = false
 local highlights = {} -- Table um Highlights zu speichern
+local espUpdateTimer = nil
 
 -- Funktion zum Erstellen von ESP
 local function createESP(object)
@@ -103,6 +104,13 @@ local function deactivateESP()
     highlights = {} -- Reset der Highlights
 end
 
+-- Funktion zum Überprüfen, ob ESP aktiviert ist, und es regelmäßig neu laden
+local function autoUpdateESP()
+    if espActive then
+        activateESP() -- Wenn ESP aktiv ist, das ESP alle 10 Sekunden neu laden
+    end
+end
+
 -- ESP-Button-Funktion
 EspButton.MouseButton1Click:Connect(function()
     if espActive then
@@ -110,11 +118,24 @@ EspButton.MouseButton1Click:Connect(function()
         EspButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Grau
         EspButton.Text = "ESP" -- Text zurück zu "ESP"
         espActive = false
+
+        -- Stoppe den Timer, wenn ESP deaktiviert wird
+        if espUpdateTimer then
+            espUpdateTimer:Disconnect()
+            espUpdateTimer = nil
+        end
     else
         activateESP() -- ESP aktivieren
         EspButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Grün
-        EspButton.Text = "penis" -- Text ändern zu "Deaktivieren"
+        EspButton.Text = "schniepel" -- Text ändern zu "Deaktivieren"
         espActive = true
+
+        -- Starte den Timer, um das ESP alle 10 Sekunden zu aktualisieren
+        espUpdateTimer = game:GetService("RunService").Heartbeat:Connect(function()
+            if espActive then
+                autoUpdateESP() -- ESP regelmäßig alle 10 Sekunden aktualisieren
+            end
+        end)
     end
 end)
 
@@ -156,3 +177,4 @@ game.Players.PlayerAdded:Connect(function(player)
 end)
 
 -- Hinweis: Für das Skript muss Allow HTTP Requests in den Game Settings aktiviert sein.
+
