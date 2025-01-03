@@ -1,177 +1,102 @@
--- Mod-Menü GUI erstellen
-local ScreenGui = Instance.new("ScreenGui")
-local Frame = Instance.new("Frame")
-local Title = Instance.new("TextLabel")
-local CloseButton = Instance.new("TextButton")
-local EspButton = Instance.new("TextButton")
-local MainFrame = Instance.new("Frame")
-local Dragging, DragStart, StartPos
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
 
--- Eigenschaften für das GUI setzen
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+local menu = Instance.new("Frame")
+menu.Size = UDim2.new(0, 300, 0, 400)
+menu.Position = UDim2.new(0.5, -150, 0.5, -200)
+menu.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+menu.BorderSizePixel = 0
+menu.Visible = true
+menu.Active = true
+menu.Draggable = true
+menu.Parent = game.CoreGui
 
--- Rahmen für das Menü
-Frame.Parent = ScreenGui
-Frame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-Frame.Size = UDim2.new(0, 400, 0, 200)
-Frame.Position = UDim2.new(0.5, -200, 0.5, -100)
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -10, 0, 30)
+title.Position = UDim2.new(0, 5, 0, 5)
+title.Text = "Frozen Cheats"
+title.TextColor3 = Color3.fromRGB(0, 170, 255)
+title.BackgroundTransparency = 1
+title.TextSize = 20
+title.Font = Enum.Font.SourceSansBold
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = menu
 
--- Titel "Frozen Cheats"
-Title.Parent = Frame
-Title.Text = "Frozen Cheats"
-Title.TextColor3 = Color3.new(0, 0, 1) -- Blau
-Title.Font = Enum.Font.SourceSansBold
-Title.TextSize = 24
-Title.Size = UDim2.new(0, 150, 0, 30)
-Title.Position = UDim2.new(0, 10, 0, 5)
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 30, 0, 30)
+closeButton.Position = UDim2.new(1, -35, 0, 5)
+closeButton.Text = "X"
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+closeButton.Parent = menu
 
--- Schließen-Button "X"
-CloseButton.Parent = Frame
-CloseButton.Text = "X"
-CloseButton.TextColor3 = Color3.new(1, 0, 0) -- Rot
-CloseButton.Font = Enum.Font.SourceSansBold
-CloseButton.TextSize = 18
-CloseButton.Size = UDim2.new(0, 30, 0, 30)
-CloseButton.Position = UDim2.new(1, -40, 0, 5)
+closeButton.MouseButton1Click:Connect(function()
+    menu:Destroy()
+end)
 
 -- ESP-Button
-EspButton.Parent = Frame
-EspButton.Text = "ESP"
-EspButton.TextColor3 = Color3.new(1, 1, 1) -- Weiß
-EspButton.Font = Enum.Font.SourceSansBold
-EspButton.TextSize = 18
-EspButton.Size = UDim2.new(0, 100, 0, 50)
-EspButton.Position = UDim2.new(0, 10, 0, 50)
-EspButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Grau
+local espButton = Instance.new("TextButton")
+espButton.Size = UDim2.new(0, 100, 0, 30)
+espButton.Position = UDim2.new(0, 10, 0, 50)
+espButton.Text = "ESP"
+espButton.BackgroundColor3 = Color3.fromRGB(170, 170, 170)
+espButton.Parent = menu
 
--- Hauptframe für Inhalte (ESP, etc.)
-MainFrame.Parent = Frame
-MainFrame.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
-MainFrame.Size = UDim2.new(0, 300, 0, 150)
-MainFrame.Position = UDim2.new(0, 100, 0, 50)
+local isESPActive = false
+espButton.MouseButton1Click:Connect(function()
+    isESPActive = not isESPActive
+    espButton.Text = isESPActive and "ESP" or "ESP"
+    espButton.BackgroundColor3 = isESPActive and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(170, 170, 170)
 
--- ESP Status (aktiviert oder deaktiviert)
-local espActive = false
-local highlights = {} -- Table um Highlights zu speichern
-
--- Funktion zum Erstellen von ESP
-local function createESP(object)
-    local highlight = Instance.new("Highlight")
-    highlight.Parent = object
-    highlight.FillColor = Color3.new(1, 0, 0) -- Rot
-    highlight.FillTransparency = 0.5
-    table.insert(highlights, highlight) -- Highlight speichern
-end
-
--- Funktion um das ESP für alle Teile eines Fahrzeugs zu erstellen
-local function createESPForVehicle(vehicle)
-    if vehicle and vehicle:IsA("Model") then
-        for _, part in pairs(vehicle:GetDescendants()) do
-            if part:IsA("BasePart") then
-                createESP(part)
+    if isESPActive then
+        for _, v in pairs(game.Players:GetPlayers()) do
+            if v ~= player then
+                local highlight = v.Character:FindFirstChild("ESP") or Instance.new("Highlight")
+                highlight.Name = "ESP"
+                highlight.FillColor = Color3.fromRGB(255, 0, 0)
+                highlight.Parent = v.Character
             end
         end
-    end
-end
-
--- Funktion um ESP für alle Spieler und Fahrzeuge zu aktivieren
-local function activateESP()
-    for _, player in pairs(game.Players:GetPlayers()) do
-        if player ~= game.Players.LocalPlayer and player.Character then
-            createESP(player.Character)
-        end
-        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            -- Überprüfen, ob der Spieler in einem Fahrzeug sitzt
-            local vehicle = player.Character:FindFirstChild("VehicleSeat") and player.Character.Parent
-            if vehicle then
-                createESPForVehicle(vehicle) -- ESP für das Fahrzeug aktivieren
-            else
-                -- Spieler sehen, auch wenn sie zu Fuß sind
-                createESP(player.Character)
-            end
-        end
-    end
-end
-
--- Funktion zum Deaktivieren von ESP
-local function deactivateESP()
-    for _, highlight in pairs(highlights) do
-        if highlight.Parent then
-            highlight:Destroy() -- Entferne jedes Highlight
-        end
-    end
-    highlights = {} -- Reset der Highlights
-end
-
--- ESP-Button-Funktion
-EspButton.MouseButton1Click:Connect(function()
-    if espActive then
-        deactivateESP() -- ESP deaktivieren
-        EspButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Grau
-        EspButton.Text = "ESP" -- Text zurück zu "ESP"
-        espActive = false
     else
-        activateESP() -- ESP aktivieren
-        EspButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Grün
-        EspButton.Text = "Deaktivieren" -- Text ändern zu "Deaktivieren"
-        espActive = true
-    end
-end)
-
--- Schließen-Button-Funktion
-CloseButton.MouseButton1Click:Connect(function()
-    ScreenGui:Destroy()
-    print("Mod-Menü geschlossen.")
-end)
-
--- Funktion zum Verschieben des Menüs
-Frame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        Dragging = true
-        DragStart = input.Position
-        StartPos = Frame.Position
-    end
-end)
-
-Frame.InputChanged:Connect(function(input)
-    if Dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - DragStart
-        Frame.Position = UDim2.new(StartPos.X.Scale, StartPos.X.Offset + delta.X, StartPos.Y.Scale, StartPos.Y.Offset + delta.Y)
-    end
-end)
-
-Frame.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        Dragging = false
-    end
-end)
-
--- Event-Listener, um ESP für neue Spieler zu aktivieren
-game.Players.PlayerAdded:Connect(function(player)
-    player.CharacterAdded:Connect(function(character)
-        if espActive then
-            createESP(character) -- Aktivieren von ESP für den neuen Spieler
-        end
-    end)
-end)
-
--- Tastenkürzel "O" zum Aktivieren/Deaktivieren von ESP
-game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
-    if input.KeyCode == Enum.KeyCode.O then
-        if espActive then
-            deactivateESP() -- ESP deaktivieren
-            EspButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5) -- Grau
-            EspButton.Text = "ESP" -- Text zurück zu "ESP"
-            espActive = false
-        else
-            activateESP() -- ESP aktivieren
-            EspButton.BackgroundColor3 = Color3.new(0, 1, 0) -- Grün
-            EspButton.Text = "RP" -- Text ändern zu "Deaktivieren"
-            espActive = true
+        for _, v in pairs(game.Players:GetPlayers()) do
+            local highlight = v.Character:FindFirstChild("ESP")
+            if highlight then
+                highlight:Destroy()
+            end
         end
     end
 end)
 
--- Hinweis: Für das Skript muss Allow HTTP Requests in den Game Settings aktiviert sein.
+-- Speedhack-Button
+local speedButton = Instance.new("TextButton")
+speedButton.Size = UDim2.new(0, 100, 0, 30)
+speedButton.Position = UDim2.new(0, 10, 0, 90)
+speedButton.Text = "Speedhack"
+speedButton.BackgroundColor3 = Color3.fromRGB(170, 170, 170)
+speedButton.Parent = menu
+
+local isSpeedActive = false
+speedButton.MouseButton1Click:Connect(function()
+    isSpeedActive = not isSpeedActive
+    if isSpeedActive then
+        humanoid.WalkSpeed = 100
+        speedButton.Text = "Normal Speed"
+        speedButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    else
+        humanoid.WalkSpeed = 16
+        speedButton.Text = "Speedhack"
+        speedButton.BackgroundColor3 = Color3.fromRGB(170, 170, 170)
+    end
+end)
+
+-- Version anzeigen
+local versionLabel = Instance.new("TextLabel")
+versionLabel.Size = UDim2.new(0, 100, 0, 30)
+versionLabel.Position = UDim2.new(1, -110, 1, -40)
+versionLabel.Text = "V 1.1.6"
+versionLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+versionLabel.BackgroundTransparency = 1
+versionLabel.TextSize = 10
+versionLabel.Parent = menu
 
